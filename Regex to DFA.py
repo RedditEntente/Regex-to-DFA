@@ -49,28 +49,51 @@ def regex_to_dfa(regex):
 
 def parse_regex(regex, start_state, final_state, dfa):
     current_state = start_state
+    i = 0
     for char in regex:
         if char == '(':
-            # Handle group
-            pass
+            group_end_index = find_group_end_index(regex, i)
+            group_regex = regex[i+1:group_end_index]
+            parse_regex(group_regex, current_state, final_state, dfa)
+            i = group_end_index
+        
         elif char == '|':
-            # Handle alternation
-            pass
+            
+            branch_start_state = State(str(len(dfa.states)))
+            dfa.add_state(branch_start_state)
+            current_state.add_transition(None, branch_start_state)
+            branch_final_state = State(str(len(dfa.states)))
+            dfa.add_state(branch_final_state)
+            parse_regex(regex[i+1:], branch_start_state, branch_final_state, dfa)
+            current_state = branch_final_state
+            break
         elif char == '*':
-            # Handle Kleene star
-            pass
+            prev_state = current_state
+            current_state.add_transition(None, prev_state)
+            
+            prev_state.add_transition(None, final_state)
         else:
-            # Handle literals
+            
             new_state = State(str(len(dfa.states)))
             current_state.add_transition(char, new_state)
             dfa.add_state(new_state)
             current_state = new_state
 
-    
+    #
     current_state.add_transition(None, final_state)
 
-
+def find_group_end_index(regex, start_index):
+    
+    stack = []
+    for i in range(start_index + 1, len(regex)):
+        if regex[i] == '(':
+            stack.append('(')
+        elif regex[i] == ')':
+            if not stack:
+                return i
+            stack.pop()
+    return -1
 if __name__ == "__main__":
-    regex = "b*abb"
+    regex = "b|a"
     dfa = regex_to_dfa(regex)
     dfa.print_dfa()
