@@ -1,3 +1,5 @@
+"""Regex solver using backtracking to latter compare with DFA credit to https://www.youtube.com/@clumsycomputer"""
+
 def is_start(char):
     return char == '^'
 
