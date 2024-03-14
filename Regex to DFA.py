@@ -66,10 +66,10 @@ def parse_regex(regex, start_state, final_state, dfa):
             dfa.add_state(new_state)
             current_state = new_state
 
-    # Add transition to final state
+    
     current_state.add_transition(None, final_state)
 
-# Example usage
+
 if __name__ == "__main__":
     regex = "b*abb"
     dfa = regex_to_dfa(regex)
