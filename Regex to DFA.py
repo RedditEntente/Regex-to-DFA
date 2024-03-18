@@ -23,10 +23,26 @@ class DFA:
 
     def add_accept_state(self, state):
         self.accept_states.add(state)
+    def delete_state(self, state):
+        # Remove state from set of states
+        self.states.remove(state)
+
+        
+        if state in self.accept_states:
+            self.accept_states.remove(state)
+
+        
+        for s in self.states:
+            transitions = s.transitions.copy()  
+            for symbol, destinations in transitions.items():
+                if state in destinations:
+                    destinations.remove(state)
+                    if not destinations:  
+                        del s.transitions[symbol]
 
     def print_dfa(self):
         print("DFA:")
-        print("States:", ", ".join(s.name for s in self.states))
+        print("States:", ", ".join(s.name for s in self.states)+", f")
         print("Start state:", self.start_state.name)
         print("Accept states:", ", ".join(s.name for s in self.accept_states))
         print("Transitions:")
@@ -50,12 +66,18 @@ def regex_to_dfa(regex):
 def parse_regex(regex, start_state, final_state, dfa):
     current_state = start_state
     i = 0
-    for char in regex:
+    n = len(regex)
+    j = 0
+    while j < n:
+        char = regex[j]
         if char == '(':
             group_end_index = find_group_end_index(regex, i)
+            bracket_start_state= current_state
+            
             group_regex = regex[i+1:group_end_index]
             parse_regex(group_regex, current_state, final_state, dfa)
             i = group_end_index
+            j = group_end_index
         
         elif char == '|':
             
@@ -68,10 +90,14 @@ def parse_regex(regex, start_state, final_state, dfa):
             current_state = branch_final_state
             break
         elif char == '*':
-            prev_state = current_state
-            current_state.add_transition(None, prev_state)
             
-            prev_state.add_transition(None, final_state)
+            
+
+            
+            current_state.add_transition(regex[j-1], current_state)
+        
+        
+            
         else:
             
             new_state = State(str(len(dfa.states)))
@@ -79,7 +105,7 @@ def parse_regex(regex, start_state, final_state, dfa):
             dfa.add_state(new_state)
             current_state = new_state
 
-    #
+        j = j +1
     current_state.add_transition(None, final_state)
 
 def find_group_end_index(regex, start_index):
@@ -94,6 +120,7 @@ def find_group_end_index(regex, start_index):
             stack.pop()
     return -1
 if __name__ == "__main__":
-    regex = "b|a"
+    regex = "abaa*"
     dfa = regex_to_dfa(regex)
     dfa.print_dfa()
+    
