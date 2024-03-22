@@ -8,6 +8,7 @@ class State:
             self.transitions[symbol].add(state)
         else:
             self.transitions[symbol] = {state}
+            
 
 class DFA:
     def __init__(self):
@@ -92,6 +93,7 @@ def parse_regex(regex, start_state, final_state, dfa):
     while j < n:
         
         
+        
         char = regex[j]
         if char == '(':
             group_end_index = find_group_end_index(regex, i)
@@ -114,28 +116,47 @@ def parse_regex(regex, start_state, final_state, dfa):
             current_state = branch_final_state
             break
         elif char == '*':
-            prev_state = current_state
+            
             
             
             if regex[j-1] == ")":
-                new_state = State(str(len(dfa.states)-1))
-                dfa.add_state(new_state)
                 
-                current_state = new_state
+                
+                current_state = dfa.get_state(str(len(dfa.states)-1))
                 second_state = dfa.get_state(str(bracket_index))
                 
                 current_state.add_transition(regex[bracket_index],second_state)
+                
                 
             else:
 
             
                 current_state.add_transition(regex[j-1], current_state)
-        
+                prev_state = dfa.get_state(str(len(dfa.states)-2))
+                
+        elif char == '+':
+            
+            
+            
+            if regex[j-1] == ")":
+                
+                
+                current_state = dfa.get_state(str(len(dfa.states)-1))
+                second_state = dfa.get_state(str(bracket_index))
+                
+                current_state.add_transition(regex[bracket_index],second_state)
+                
+                
+            else:
+
+            
+                current_state.add_transition(regex[j-1], current_state)
+                
             
             
         else:
-            
             new_state = State(str(len(dfa.states)))
+            
             current_state.add_transition(char, new_state)
             dfa.add_state(new_state)
             
@@ -157,10 +178,10 @@ def find_group_end_index(regex, start_index):
             stack.pop()
     return -1
 if __name__ == "__main__":
-    regex = "baba"
+    regex = "(bac)+c+a+b+"
     dfa = regex_to_dfa(regex)
     dfa.print_dfa()
-    test_string = "baba"
+    test_string = "bacbacbacccccaaaabbbb"
     if dfa.is_accepted(test_string):
         print(f"The string '{test_string}' is accepted by the DFA.")
     else:
