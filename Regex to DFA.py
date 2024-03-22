@@ -45,6 +45,19 @@ class DFA:
             if state.name == name:
                 return state
         return None
+    
+    def is_accepted(self, input_string):
+        current_state = self.start_state
+        input_string = input_string + " "
+        for symbol in input_string:
+            
+            if symbol in current_state.transitions:
+                current_state = next(iter(current_state.transitions[symbol]))
+            else:
+                
+                return False
+        
+        return current_state in self.accept_states
 
     def print_dfa(self):
        
@@ -66,7 +79,7 @@ def regex_to_dfa(regex):
     dfa.add_accept_state(final_state)
 
     current_state = parse_regex(regex, start_state, final_state, dfa)
-    current_state.add_transition(None, final_state)
+    current_state.add_transition(" ", final_state)
     
 
     return dfa
@@ -82,7 +95,7 @@ def parse_regex(regex, start_state, final_state, dfa):
         char = regex[j]
         if char == '(':
             group_end_index = find_group_end_index(regex, i)
-            bracket_start_state= current_state
+            bracket_start_state = current_state
             bracket_index= j +1
             
             group_regex = regex[i+1:group_end_index]
@@ -111,14 +124,14 @@ def parse_regex(regex, start_state, final_state, dfa):
                 current_state = new_state
                 second_state = dfa.get_state(str(bracket_index))
                 
-                current_state.add_transition(regex[j-2],second_state)
+                current_state.add_transition(regex[bracket_index],second_state)
                 
             else:
 
             
                 current_state.add_transition(regex[j-1], current_state)
         
-            prev_state.add_transition(None,current_state)
+            
             
         else:
             
@@ -144,8 +157,15 @@ def find_group_end_index(regex, start_index):
             stack.pop()
     return -1
 if __name__ == "__main__":
-    regex = "(abaa)*"
+    regex = "baba"
     dfa = regex_to_dfa(regex)
-    
     dfa.print_dfa()
+    test_string = "baba"
+    if dfa.is_accepted(test_string):
+        print(f"The string '{test_string}' is accepted by the DFA.")
+    else:
+        print(f"The string '{test_string}' is not accepted by the DFA.")
+    
+    
+    
     
