@@ -128,11 +128,18 @@ def parse_regex(regex, start_state, final_state, dfa):
                 current_state.add_transition(regex[bracket_index],second_state)
                 
                 
+                
             else:
 
             
                 current_state.add_transition(regex[j-1], current_state)
                 prev_state = dfa.get_state(str(len(dfa.states)-2))
+                if prev_state:
+
+                    prev_state.add_transition(" ",current_state)
+                else:
+                    prev_state = dfa.get_state("s")
+                    prev_state.add_transition(" ",current_state)
                 
         elif char == '+':
             
@@ -149,8 +156,9 @@ def parse_regex(regex, start_state, final_state, dfa):
                 
             else:
 
-            
+                
                 current_state.add_transition(regex[j-1], current_state)
+                
                 
             
             
