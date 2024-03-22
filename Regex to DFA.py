@@ -144,7 +144,7 @@ def find_group_end_index(regex, start_index):
             stack.pop()
     return -1
 if __name__ == "__main__":
-    regex = "(abaa)a*"
+    regex = "(abaa)*"
     dfa = regex_to_dfa(regex)
     
     dfa.print_dfa()
