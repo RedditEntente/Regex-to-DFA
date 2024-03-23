@@ -1,3 +1,5 @@
+import string
+
 class State:
     def __init__(self, name):
         self.name = name
@@ -15,6 +17,7 @@ class DFA:
         self.states = set()
         self.start_state = None
         self.accept_states = set()
+        self.alphabet = set()
 
     def add_state(self, state):
         self.states.add(state)
@@ -24,6 +27,8 @@ class DFA:
 
     def add_accept_state(self, state):
         self.accept_states.add(state)
+    def add_to_alphabet(self, symbol):
+        self.alphabet.add(symbol)
     def delete_state(self, state):
         
         self.states.remove(state)
@@ -71,6 +76,8 @@ class DFA:
             for symbol, destinations in state.transitions.items():
                 for dest in destinations:
                     print(f"{state.name} -- {symbol} --> {dest.name}")
+    def convert_alphabet_to_set(self, new_alphabet_set):
+        self.alphabet = new_alphabet_set
 
 def regex_to_dfa(regex):
     dfa = DFA()
@@ -117,6 +124,13 @@ def parse_regex(regex, start_state, dfa , j):
             parse_regex(regex[i+1:], branch_start_state, branch_final_state, dfa, j)
             current_state = branch_final_state
             break
+        elif char == '.':
+                
+                for symbol in dfa.alphabet:
+                    if symbol != ' ':
+                        new_state = State(str(len(self.states)))
+                        current_state.add_transition(symbol, new_state)
+                        dfa.add_state(new_state)    
         elif char == '*':
             
             
@@ -180,6 +194,8 @@ def parse_regex(regex, start_state, dfa , j):
         
     return current_state
 
+    
+
 def find_group_end_index(regex, start_index):
     
     stack = []
@@ -201,15 +217,25 @@ def parse_string(string,regex,outputstring =""):
                 outputstring = outputstring + " "
                 break
     return outputstring
+
+def generate_alphabet():
+    lowercase_letters = set(string.ascii_lowercase)
+    uppercase_letters = set(string.ascii_uppercase)
+    digits = set(string.digits)
+    alphanumeric_set = lowercase_letters.union(uppercase_letters).union(digits)
+    return alphanumeric_set
         
 if __name__ == "__main__":
-    regex = "((bac)*(def))*"
+    p = generate_alphabet
+    regex = "(bac)*"
     dfa = regex_to_dfa(regex)
+    dfa.convert_alphabet_to_set(p)
     dfa.print_dfa()
-    test_string = "bbbb"
+    test_string = "bac"
     
-    test_string_1 = parse_string(test_string,regex)
-    print(test_string_1)
+    
+    
+    
 
     
     
