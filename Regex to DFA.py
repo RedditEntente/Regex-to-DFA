@@ -17,7 +17,7 @@ class DFA:
         self.states = set()
         self.start_state = None
         self.accept_states = set()
-        self.alphabet = {'a', 'b', 'c', '1', '2', '3','d'}
+        self.alphabet = {'a', 'b'}
 
     def add_state(self, state):
         self.states.add(state)
@@ -29,6 +29,8 @@ class DFA:
         self.accept_states.add(state)
     def add_to_alphabet(self, symbol):
         self.alphabet.add(symbol)
+    def set_alphabet(self,alphabet):
+        self.alphabet = alphabet
     def dot_product(self, current_state,second_state):
         for i in self.alphabet:
             current_state.add_transition(i,second_state)
@@ -89,6 +91,8 @@ def regex_to_dfa(regex):
     dfa.add_state(start_state)
     final_state = State("f")
     dfa.add_accept_state(final_state)
+    alphanumeric_set = generate_alphanumeric_set()
+    """dfa.set_alphabet(alphanumeric_set)"""
 
     current_state = parse_regex(regex, start_state, dfa, 0)
     current_state.add_transition(" ", final_state)
@@ -119,15 +123,20 @@ def parse_regex(regex, start_state, dfa , j):
             j = group_end_index
         
         elif char == '|':
+            try:
+                if bracket_start_state:
+                    second_state = bracket_start_state
+                    p = parse_regex(regex[j+1:],start_state,dfa,0)
+                    p.add_transition(" ", second_state)
+                    break
             
-            branch_start_state = State(str(len(dfa.states)))
-            dfa.add_state(branch_start_state)
-            current_state.add_transition(None, branch_start_state)
-            branch_final_state = State(str(len(dfa.states)))
-            dfa.add_state(branch_final_state)
-            parse_regex(regex[i+1:], branch_start_state, branch_final_state, dfa, j)
-            current_state = branch_final_state
-            break
+            except UnboundLocalError:
+                start_state = dfa.get_state("s")
+                second_state = current_state
+                p = parse_regex(regex[j+1:],start_state,dfa,0)
+                p.add_transition(" ", second_state)
+                break
+                
     
                            
         elif char == '*':
@@ -245,13 +254,13 @@ def generate_alphanumeric_set():
     return alphanumeric_set
         
 if __name__ == "__main__":
-    alphanumeric_set = generate_alphanumeric_set()
     
-    regex = "(...)+"
+    
+    regex = "(aaabbb)*"
     dfa = regex_to_dfa(regex)
     
     dfa.print_dfa()
-    test_string = "bacbac"
+    test_string = "aaabbb"
     
     
     
