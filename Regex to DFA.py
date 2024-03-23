@@ -179,7 +179,13 @@ def parse_regex(regex, start_state, dfa , j):
                 current_state = dfa.get_state(str(len(dfa.states)-1))
                 second_state = dfa.get_state(str(bracket_index))
                 
-                current_state.add_transition(regex[bracket_index],second_state)
+                while regex[bracket_index] == "(":
+                    bracket_index =bracket_index +1
+                if regex[bracket_index] == ".":
+                    dfa.dot_product(current_state,second_state)
+                else:
+
+                    current_state.add_transition(regex[bracket_index],second_state)
                 
                 
             else:
@@ -241,11 +247,11 @@ def generate_alphanumeric_set():
 if __name__ == "__main__":
     alphanumeric_set = generate_alphanumeric_set()
     
-    regex = "(...)*"
+    regex = "(...)+"
     dfa = regex_to_dfa(regex)
     
     dfa.print_dfa()
-    test_string = "bac"
+    test_string = "bacbac"
     
     
     
