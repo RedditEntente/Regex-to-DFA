@@ -47,9 +47,10 @@ class DFA:
                 return state
         return None
     
-    def is_accepted(self, input_string):
+    def is_accepted(self, input_string,regex):
         current_state = self.start_state
-        input_string = input_string + " "
+        n = len(regex)
+        input_string = input_string + " "* n
         for symbol in input_string:
             
             if symbol in current_state.transitions:
@@ -79,30 +80,31 @@ def regex_to_dfa(regex):
     final_state = State("f")
     dfa.add_accept_state(final_state)
 
-    current_state = parse_regex(regex, start_state, final_state, dfa)
+    current_state = parse_regex(regex, start_state, dfa, 0)
     current_state.add_transition(" ", final_state)
+    final_state.add_transition(" ", final_state)
     
 
     return dfa
 
-def parse_regex(regex, start_state, final_state, dfa):
+def parse_regex(regex, start_state, dfa , j):
     current_state = start_state
-    i = 0
+    
     n = len(regex)
-    j = 0
+    
     while j < n:
         
         
         
         char = regex[j]
         if char == '(':
-            group_end_index = find_group_end_index(regex, i)
+            group_end_index = find_group_end_index(regex, j)
             bracket_start_state = current_state
             bracket_index= j +1
             
-            group_regex = regex[i+1:group_end_index]
-            parse_regex(group_regex, current_state, final_state, dfa)
-            i = group_end_index
+            group_regex = regex[j+1:group_end_index]
+            parse_regex(group_regex, current_state, dfa, j)
+            
             j = group_end_index
         
         elif char == '|':
@@ -112,7 +114,7 @@ def parse_regex(regex, start_state, final_state, dfa):
             current_state.add_transition(None, branch_start_state)
             branch_final_state = State(str(len(dfa.states)))
             dfa.add_state(branch_final_state)
-            parse_regex(regex[i+1:], branch_start_state, branch_final_state, dfa)
+            parse_regex(regex[i+1:], branch_start_state, branch_final_state, dfa, j)
             current_state = branch_final_state
             break
         elif char == '*':
@@ -124,8 +126,12 @@ def parse_regex(regex, start_state, final_state, dfa):
                 
                 current_state = dfa.get_state(str(len(dfa.states)-1))
                 second_state = dfa.get_state(str(bracket_index))
+                bracket_start_state.add_transition(" ", current_state)
                 
+                while regex[bracket_index] == "(":
+                    bracket_index =bracket_index +1
                 current_state.add_transition(regex[bracket_index],second_state)
+
                 
                 
                 
@@ -185,15 +191,34 @@ def find_group_end_index(regex, start_index):
                 return i
             stack.pop()
     return -1
+def parse_string(string,regex,outputstring =""):
+    for i in string:
+        for j in regex:
+            if i == j:
+                outputstring = outputstring + j
+                
+            elif j == "*":
+                outputstring = outputstring + " "
+                break
+    return outputstring
+        
 if __name__ == "__main__":
-    regex = "(bac)+c+a+b+"
+    regex = "((bac)*(def))*"
     dfa = regex_to_dfa(regex)
     dfa.print_dfa()
-    test_string = "bacbacbacccccaaaabbbb"
-    if dfa.is_accepted(test_string):
+    test_string = "bbbb"
+    
+    test_string_1 = parse_string(test_string,regex)
+    print(test_string_1)
+
+    
+    
+    
+    
+    if dfa.is_accepted(test_string,regex):
         print(f"The string '{test_string}' is accepted by the DFA.")
     else:
-        print(f"The string '{test_string}' is not accepted by the DFA.")
+        print(f"The string '{test_string}' is NOT accepted by the DFA.")
     
     
     
