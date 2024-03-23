@@ -29,6 +29,9 @@ class DFA:
         self.accept_states.add(state)
     def add_to_alphabet(self, symbol):
         self.alphabet.add(symbol)
+    def dot_product(self, current_state,second_state):
+        for i in self.alphabet:
+            current_state.add_transition(i,second_state)
     def delete_state(self, state):
         
         self.states.remove(state)
@@ -94,6 +97,7 @@ def regex_to_dfa(regex):
 
     return dfa
 
+    
 def parse_regex(regex, start_state, dfa , j):
     current_state = start_state
     
@@ -127,10 +131,14 @@ def parse_regex(regex, start_state, dfa , j):
     
                            
         elif char == '*':
+            if regex[j-1] == ".":
+                
+                    
+                        
+                dfa.dot_product(current_state,current_state)
             
             
-            
-            if regex[j-1] == ")":
+            elif regex[j-1] == ")":
                 
                 
                 current_state = dfa.get_state(str(len(dfa.states)-1))
@@ -140,10 +148,7 @@ def parse_regex(regex, start_state, dfa , j):
                 while regex[bracket_index] == "(":
                     bracket_index =bracket_index +1
                 if regex[bracket_index] == ".":
-                    for symbol in dfa.alphabet:
-                    
-                        
-                        current_state.add_transition(symbol, second_state)
+                    dfa.dot_product(current_state,second_state)
                 else:
 
                     current_state.add_transition(regex[bracket_index],second_state)
@@ -165,9 +170,10 @@ def parse_regex(regex, start_state, dfa , j):
                 
         elif char == '+':
             
+            if regex[j-1] == ".":
+                dfa.dot_product(current_state,current_state)
             
-            
-            if regex[j-1] == ")":
+            elif regex[j-1] == ")":
                 
                 
                 current_state = dfa.get_state(str(len(dfa.states)-1))
@@ -189,10 +195,7 @@ def parse_regex(regex, start_state, dfa , j):
             if char == '.':
                 
                 
-                for symbol in dfa.alphabet:
-                    if symbol != ' ':
-                        
-                        current_state.add_transition(symbol, new_state)
+                dfa.dot_product(current_state,new_state)
             
             
             else:
@@ -238,11 +241,11 @@ def generate_alphanumeric_set():
 if __name__ == "__main__":
     alphanumeric_set = generate_alphanumeric_set()
     
-    regex = "(.)*"
+    regex = "(...)*"
     dfa = regex_to_dfa(regex)
     
     dfa.print_dfa()
-    test_string = "bacbac"
+    test_string = "bac"
     
     
     
