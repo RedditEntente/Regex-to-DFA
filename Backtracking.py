@@ -227,15 +227,12 @@ def match(expr, string):
     return [False, None, None]
 
 
-def main():
+
+if __name__ == '__main__':
     expr = 'I am (Greece|Rome)'
-    string = 'I am Rme'
+    string = 'I am Rome'
     [matched, match_pos, match_length] = match(expr, string)
     if matched:
         print(f'match_expr({expr}, {string}) = {string[match_pos:match_pos + match_length]}')
     else:
         print(f'match_expr({expr}, {string}) = False')
-
-
-if __name__ == '__main__':
-    main()
