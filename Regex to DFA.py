@@ -260,7 +260,7 @@ if __name__ == "__main__":
     dfa = regex_to_dfa(regex)
     
     dfa.print_dfa()
-    test_string = "aaabbb"
+    test_string = "aab"
     
     
     
